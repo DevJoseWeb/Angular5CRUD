@@ -1,69 +1,32 @@
 import { Injectable } from '@angular/core';
-import { FormGroup,  FormBuilder,  Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { Response, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
 
 @Injectable()
-export class CoinService {
+export class HttpUtilServiceMongoDB {
 
-  result: any;
-  constructor(private http: HttpClient) {}
+	private API_URL: string = 'http://localhost:3000/api/';
 
-  addCoin(name, price) {
-    const uri = 'http://localhost:4000/coins/add';
-    const obj = {
-      name: name,
-      price: price
-    };
-    this
-      .http
-      .post(uri, obj)
-      .subscribe(res =>
-          console.log('Done'));
-  }
+	url(path: string) {
+		return this.API_URL + path;
+	}
 
-  getCoins() {
-    const uri = 'http://localhost:4000/coins';
-    return this
-            .http
-            .get(uri)
-            .map(res => {
-              return res;
-            });
-  }
+	headers() {
+		let headersParams = { 'Content-Type': 'application/json' };
+		 if (localStorage['token']) {
+		 	headersParams['Authorization'] = localStorage['token'];
+		}
+		let headers = new Headers(headersParams);
+		let options = new RequestOptions({ headers: headers });
+		return options;
+	}
 
-  editCoin(id) {
-    const uri = 'http://localhost:4000/coins/edit/' + id;
-    return this
-            .http
-            .get(uri)
-            .map(res => {
-              return res;
-            });
-  }
+	extrairDados(response: Response) {
+		let data = response.json();
+		return data || {};
+	}
 
-  updateCoin(name, price, id) {
-    const uri = 'http://localhost:4000/coins/update/' + id;
-
-    const obj = {
-      name: name,
-      price: price
-    };
-    this
-      .http
-      .post(uri, obj)
-      .subscribe(res => console.log('Done'));
-  }
-
-  deleteCoin(id) {
-    const uri = 'http://localhost:4000/coins/delete/' + id;
-
-        return this
-            .http
-            .get(uri)
-            .map(res => {
-              return res;
-            });
-  }
+	processarErros(erro: any) {
+		return Observable.throw('Erro acessando servidor remoto.');
+	}
 }
